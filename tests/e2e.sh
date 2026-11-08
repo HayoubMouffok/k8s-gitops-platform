@@ -4,13 +4,15 @@ set -euo pipefail
 pass() { echo "✅ $*"; }
 fail() { echo "❌ $*"; exit 1; }
 
-echo "1/4 Attente : toutes les applications Argo CD Synced + Healthy"
+echo "1/4 Attente : applications Argo CD Synced + Healthy"
 for i in $(seq 1 90); do
   status=$(kubectl -n argocd get applications -o json \
     | jq -r '.items[] | "\(.metadata.name) \(.status.sync.status) \(.status.health.status)"')
   echo "$status" | column -t; echo "---"
-  if [ "$(echo "$status" | wc -l)" -ge 8 ] && ! echo "$status" | grep -vq "Synced Healthy"; then
-    pass "8 applications Synced/Healthy"; break
+  # l'application racine peut rester OutOfSync (champs gérés par Argo CD) : on vérifie les applications filles
+  children=$(echo "$status" | grep -v "^root ")
+  if [ "$(echo "$children" | wc -l)" -ge 8 ] && ! echo "$children" | grep -vq "Synced Healthy"; then
+    pass "$(echo "$children" | wc -l) applications Synced/Healthy"; break
   fi
   [ "$i" -eq 90 ] && fail "applications non convergées"
   sleep 10
