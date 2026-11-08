@@ -10,7 +10,7 @@ for i in $(seq 1 90); do
     | jq -r '.items[] | "\(.metadata.name) \(.status.sync.status) \(.status.health.status)"')
   echo "$status" | column -t; echo "---"
   # l'application racine peut rester OutOfSync (champs gérés par Argo CD) : on vérifie les applications filles
-  children=$(echo "$status" | grep -v "^root ")
+  children=$(echo "$status" | grep -v "^root " || true)
   if [ "$(echo "$children" | wc -l)" -ge 8 ] && ! echo "$children" | grep -vq "Synced Healthy"; then
     pass "$(echo "$children" | wc -l) applications Synced/Healthy"; break
   fi
