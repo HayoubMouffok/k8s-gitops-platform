@@ -1,0 +1,6 @@
+apiVersion: v2
+name: demo-app
+description: Microservice de démonstration (podinfo) durci et observable
+type: application
+version: 1.0.0
+appVersion: "6.7.0"

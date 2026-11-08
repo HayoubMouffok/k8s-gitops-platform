@@ -1,0 +1,28 @@
+image:
+  repository: ghcr.io/stefanprodan/podinfo
+  tag: "6.7.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+ingress:
+  className: nginx
+  host: demo.local
+  clusterIssuer: selfsigned
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
