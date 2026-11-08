@@ -1,0 +1,20 @@
+# Seuls l'ingress-controller et Prometheus peuvent joindre l'application.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "demo-app.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {{- include "demo-app.selector" . | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 9898
