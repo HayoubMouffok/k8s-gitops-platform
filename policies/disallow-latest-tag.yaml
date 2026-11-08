@@ -1,0 +1,23 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    policies.kyverno.io/description: Les images doivent utiliser un tag explicite (pas :latest).
+spec:
+  background: true
+  rules:
+    - name: disallow-latest-tag
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [demo]
+      validate:
+        failureAction: Enforce
+        message: "Les images doivent utiliser un tag explicite (pas :latest)."
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest & *:*"
